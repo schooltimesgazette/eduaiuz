@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101426" id="themeColor">
+  <title>EduAI — Shaxsiy AI ustozingiz</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%238b7cff'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+<noscript><p style="padding:20px">Bu sayt ishlashi uchun JavaScript yoqilgan bo‘lishi kerak.</p></noscript>
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="#home" data-view="home"><span class="brand-mark">✦</span><span><b>Edu<span>AI</span></b><small>YOUR PERSONAL AI TEACHER</small></span></a>
+    <div class="nav-label">ASOSIY MENYU</div>
+    <nav class="nav" id="nav" aria-label="Asosiy menyu">
+      <button type="button" class="active" data-view="home"><i>⌂</i>Bosh sahifa</button>
+      <button type="button" data-view="tutor"><i>✧</i>AI ustoz</button>
+      <button type="button" data-view="subjects"><i>▦</i>Fanlar</button>
+      <button type="button" data-view="tests"><i>☑</i>Testlar</button>
+      <button type="button" data-view="results"><i>▥</i>Natijalarim</button>
+      <button type="button" data-view="plan"><i>◎</i>O‘quv rejam</button>
+    </nav>
+    <div class="sidebar-bottom"><div class="tip"><b>✨ Bilim sari bir qadam</b><p>Har kuni ozgina o‘rganish katta natija beradi.</p><button type="button" class="primary full" data-go="tutor">Darsni boshlash →</button></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-title"><div class="muted small" id="dateLabel">BUGUNGI O‘QUV MAYDONINGIZ</div><h1 id="pageTitle">Bosh sahifa</h1></div>
+      <div class="actions"><button type="button" class="icon-btn" id="themeToggle" title="Dark / Light rejimi" aria-label="Rang rejimini almashtirish">☼</button><button type="button" class="user-pill" id="authOpen">Kirish / Ro‘yxatdan o‘tish</button></div>
+    </header>
+
+    <section class="view active" id="view-home">
+      <div class="hero"><div><span class="pill">✦ O‘RGANISHNING YANGI USULI</span><h2>Salom, bilim izlovchi! 👋</h2><p>Bugun yangi narsani o‘rganishga tayyormisan? EduAI mavzularni tushunish va maqsadlaringga erishishda yordam beradi.</p><button type="button" class="primary light-btn" data-go="tutor">✦ AI ustoz bilan suhbat</button></div><div class="hero-art" aria-hidden="true">✧<span>AI</span></div></div>
+      <div class="stats">
+        <article class="stat"><span class="stat-icon purple">📚</span><div><small>Mavjud fanlar</small><b>6</b></div></article>
+        <article class="stat"><span class="stat-icon pink">🔥</span><div><small>O‘quv seriyasi</small><b id="streakCount">0 kun</b></div></article>
+        <article class="stat"><span class="stat-icon blue">✓</span><div><small>Bajarilgan testlar</small><b id="testCount">0</b></div></article>
+        <article class="stat"><span class="stat-icon green">🎯</span><div><small>Haftalik maqsad</small><b id="goalCount">0/4</b></div></article>
+      </div>
+      <div class="columns">
+        <div class="col-main">
+          <div class="section-head"><h3>O‘rganishni boshlash</h3><button type="button" class="text-button" data-go="subjects">Barcha fanlar →</button></div>
+          <div class="subjects">
+            <button type="button" class="subject" data-subject="Matematika"><span class="subject-icon purple">📐</span><b>Matematika</b><small>Algebra va mantiqiy masalalar</small><small class="go">Boshlash →</small></button>
+            <button type="button" class="subject" data-subject="Ingliz tili"><span class="subject-icon pink">🌐</span><b>Ingliz tili</b><small>Grammatika va lug‘at</small><small class="go">Boshlash →</small></button>
+            <button type="button" class="subject" data-subject="Informatika"><span class="subject-icon blue">💻</span><b>Informatika</b><small>Dasturlash asoslari</small><small class="go">Boshlash →</small></button>
+            <button type="button" class="subject" data-subject="Biologiya"><span class="subject-icon green">🧬</span><b>Biologiya</b><small>Tabiat va tirik organizmlar</small><small class="go">Boshlash →</small></button>
+          </div>
+          <div class="section-head gap-top"><h3>Bugungi vazifalar</h3><span class="muted small">Har kuni yangilanadi</span></div>
+          <div class="panel tasks">
+            <label><input type="checkbox" class="task-check" data-scope="daily" data-task="d-math"><span>Matematikadan 5 ta masala<small>Taxminan 15 daqiqa</small></span></label>
+            <label><input type="checkbox" class="task-check" data-scope="daily" data-task="d-words"><span>Ingliz tilidan 10 ta yangi so‘z<small>Taxminan 10 daqiqa</small></span></label>
+            <label><input type="checkbox" class="task-check" data-scope="daily" data-task="d-ask"><span>AI ustozga bitta savol berish<small>Taxminan 5 daqiqa</small></span></label>
+          </div>
+        </div>
+        <aside class="right-col">
+          <div class="panel ai-card"><div class="ai-heading"><span class="ai-orb">✧</span><div><h3>AI ustoz</h3><small class="muted">Savolingga javob top</small></div></div><p class="muted">Tavsiya etilgan savollardan birini tanla.</p><div class="suggestions"><button type="button" data-prompt="Pifagor teoremasini oddiy misol bilan tushuntir.">📐 Pifagor teoremasi</button><button type="button" data-prompt="Present Simple va Past Simple farqini tushuntir.">🇬🇧 Ingliz tili grammatikasi</button><button type="button" data-prompt="JavaScript nima ekanini boshlovchiga tushuntir.">💻 Dasturlashni o‘rganish</button></div></div>
+          <div class="panel"><div class="section-head"><h3>Haftalik faollik</h3><span class="muted small">Savollar va testlar</span></div><div class="bars" id="weekBars" role="img" aria-label="Haftalik faollik grafigi"></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="view-tutor">
+      <div class="panel tutor-intro"><div class="ai-heading"><span class="ai-orb">✧</span><div><h2>AI ustoz</h2><small class="muted">Savol ber, o‘rgan, mashq qil</small></div></div><p class="muted">EduAI mavzularni bosqichma-bosqich tushuntirish, misollar berish va mashq tuzishda yordam beradi.</p></div>
+      <div class="chat panel">
+        <div class="chat-top"><span class="ai-orb small-orb">✧</span><div class="chat-title"><b>EduAI Tutor</b><small class="muted" id="aiStatus">Server holati tekshirilmoqda…</small></div><button type="button" id="clearChat" class="text-button push">Tozalash</button></div>
+        <div class="messages" id="messages" aria-live="polite"><div class="bubble assistant"><p>Salom! 😊 Men EduAI ustozman. Qaysi mavzuni o‘rganamiz? Savolingni yoz, men tushuntirish va misollar bilan yordam beraman.</p></div></div>
+        <form class="chat-form" id="chatForm"><input id="chatInput" maxlength="4000" placeholder="Savolingni shu yerga yoz…" autocomplete="off" enterkeyhint="send" required><button class="primary" id="sendButton" type="submit">Yuborish ↑</button></form>
+      </div>
+      <p class="muted small note">AI javoblari xato qilishi mumkin. Muhim ma’lumotlarni darslik yoki ustoz bilan tekshirib ko‘r.</p>
+    </section>
+
+    <section class="view" id="view-subjects"><div class="section-head"><h2>Fanlar markazi</h2><span class="muted small">Fan tanlab o‘rganishni boshlang</span></div><div class="subjects large-subjects">
+      <button type="button" class="subject" data-subject="Matematika"><span class="subject-icon purple">📐</span><b>Matematika</b><small>Algebra, geometriya, mantiq</small></button>
+      <button type="button" class="subject" data-subject="Ingliz tili"><span class="subject-icon pink">🌐</span><b>Ingliz tili</b><small>Grammatika, lug‘at, suhbat</small></button>
+      <button type="button" class="subject" data-subject="Informatika"><span class="subject-icon blue">💻</span><b>Informatika</b><small>Kompyuter va dasturlash</small></button>
+      <button type="button" class="subject" data-subject="Biologiya"><span class="subject-icon green">🧬</span><b>Biologiya</b><small>Tirik organizmlar va tabiat</small></button>
+      <button type="button" class="subject" data-subject="Fizika"><span class="subject-icon orange">⚛️</span><b>Fizika</b><small>Harakat, kuch va energiya</small></button>
+      <button type="button" class="subject" data-subject="Tarix"><span class="subject-icon yellow">🏛️</span><b>Tarix</b><small>Tarixiy voqealar va sivilizatsiya</small></button>
+    </div></section>
+
+    <section class="view" id="view-tests"><div class="section-head"><h2>Bilimingni sinab ko‘r</h2><span class="muted small">Mini test</span></div><div class="panel quiz"><div class="muted small" id="quizStep">1-SAVOL</div><h3 id="quizQuestion"></h3><div id="quizOptions" class="quiz-options"></div><p id="quizFeedback" class="muted" role="status">To‘g‘ri javobni tanla.</p><button type="button" class="primary" id="nextQuestion" hidden>Keyingi savol →</button></div></section>
+
+    <section class="view" id="view-results"><div class="section-head"><h2>Natijalarim</h2><span class="muted small">Mini testlar</span></div><div class="stats two-stats"><article class="stat"><span class="stat-icon blue">✓</span><div><small>Bajarilgan testlar</small><b id="resultTests">0</b></div></article><article class="stat"><span class="stat-icon green">🏅</span><div><small>To‘g‘ri javoblar</small><b id="correctCount">0</b></div></article></div><div class="panel"><h3>Mini testdagi aniqlik</h3><div class="progress"><span id="resultBar"></span></div><div class="progress-label"><span class="muted small">To‘g‘ri javoblar foizi</span><b id="accuracy">0%</b></div><p class="muted small" id="resultNote"></p></div></section>
+
+    <section class="view" id="view-plan"><div class="panel"><h2>🎯 Haftalik o‘quv rejang</h2><p class="muted">Muntazam kichik qadamlar katta natijaga olib keladi. Reja har dushanba yangilanadi.</p><div class="plan-list">
+      <label><input type="checkbox" class="task-check" data-scope="weekly" data-task="w-math"><span>Matematika — 20 daqiqa<small>Dushanba</small></span></label>
+      <label><input type="checkbox" class="task-check" data-scope="weekly" data-task="w-eng"><span>Ingliz tili — 15 daqiqa<small>Seshanba</small></span></label>
+      <label><input type="checkbox" class="task-check" data-scope="weekly" data-task="w-info"><span>Informatika — 20 daqiqa<small>Chorshanba</small></span></label>
+      <label><input type="checkbox" class="task-check" data-scope="weekly" data-task="w-test"><span>Haftalik test<small>Dam olish kuni</small></span></label>
+    </div></div></section>
+    <footer>EduAI © 2026 · O‘rganish — kelajakka qo‘yilgan sarmoya.</footer>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="authModal" hidden>
+  <div class="modal panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button type="button" class="close" id="authClose" aria-label="Yopish">×</button>
+    <span class="ai-orb">✦</span><h2 id="authTitle">EduAI hisobingiz</h2>
+    <form id="authForm"><p class="muted small">Ro‘yxatdan o‘ting yoki tizimga kiring.</p>
+      <label>Email<input type="email" id="authEmail" placeholder="email@example.com" autocomplete="email" required></label>
+      <label>Parol<input type="password" id="authPassword" minlength="6" placeholder="Kamida 6 belgi" autocomplete="current-password" required></label>
+      <div class="modal-actions"><button class="primary" type="submit" id="loginBtn">Kirish</button><button class="secondary" type="button" id="signupBtn">Ro‘yxatdan o‘tish</button></div>
+    </form>
+    <div id="authUser" hidden><p class="muted small">Siz quyidagi hisobda tizimga kirgansiz:</p><p><b id="authUserEmail"></b></p><div class="modal-actions"><button class="secondary" type="button" id="logoutBtn">Chiqish</button></div></div>
+    <p class="muted small" id="authMessage" role="status"></p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+</body>
+</html>
