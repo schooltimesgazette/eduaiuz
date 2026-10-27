@@ -335,12 +335,28 @@
     input.value = "";
     await sendMessage(question);
   });
-  $("#clearChat").addEventListener("click", () => {
+  $("#clearChat").addEventListener("click", async () => {
     chatHistory.length = 0;
     messagesBox.replaceChildren();
     const b = addBubble("assistant");
     setText(b, "Suhbat tozalandi. 😊 Yangi savolingni yozishing mumkin.", "assistant");
+    if (session && supabaseClient) {
+      const { error } = await supabaseClient.from("chat_messages").delete().eq("user_id", session.user.id);
+      if (error) { console.warn(error.message); toast("Saqlangan suhbat o‘chirilmadi."); }
+    }
   });
+
+  async function loadChatHistory() {
+    if (!session || !supabaseClient || chatHistory.length) return;
+    const { data, error } = await supabaseClient
+      .from("chat_messages").select("role,content").order("created_at", { ascending: false }).limit(30);
+    if (error || !data?.length || chatHistory.length) return;
+    messagesBox.replaceChildren();
+    data.reverse().forEach((m) => {
+      setText(addBubble(m.role), m.content, m.role);
+      chatHistory.push({ role: m.role, content: m.content });
+    });
+  }
 
   /* ---------- Test ---------- */
   const QUESTIONS = [
@@ -434,18 +450,37 @@
     $("#authUser").hidden = !session;
     $("#authUserEmail").textContent = email || "";
   }
-  async function loadRemoteTotals() {
+  async function loadRemoteData() {
     if (!session || !supabaseClient) { remote = null; renderTotals(); return; }
-    const { data, error } = await supabaseClient
-      .from("learning_progress").select("score").eq("activity_type", "quiz").limit(5000);
-    if (error) { console.warn(error.message); remote = null; }
-    else remote = { tests: data.length, correct: data.reduce((s, r) => s + (r.score || 0), 0) };
+    const [stats, act, prof] = await Promise.all([
+      supabaseClient.rpc("get_my_stats"),
+      supabaseClient.rpc("get_my_activity", { p_days: 120 }),
+      supabaseClient.from("profiles").select("display_name").maybeSingle()
+    ]);
+    if (stats.error) { console.warn(stats.error.message); remote = null; }
+    else remote = { tests: stats.data?.tests || 0, correct: stats.data?.correct || 0 };
+    if (!act.error && Array.isArray(act.data)) {
+      act.data.forEach((r) => { activity[r.day] = Math.max(activity[r.day] || 0, r.count); });
+      ls.set("eduai-activity", activity);
+      renderActivity();
+    }
+    const name = prof.data?.display_name;
+    $("#heroTitle").textContent = name ? `Salom, ${name}! 👋` : "Salom, bilim izlovchi! 👋";
     renderTotals();
+    await loadChatHistory();
   }
   function onSession(newSession) {
+    const wasLoggedIn = Boolean(session);
     session = newSession;
     updateAuthUI();
-    setTimeout(loadRemoteTotals, 0); // onAuthStateChange ichida to'g'ridan-to'g'ri so'rov yubormaslik uchun
+    if (wasLoggedIn && !newSession) {
+      // umumiy qurilmada boshqa odam ko'rmasligi uchun chatni tozalash
+      chatHistory.length = 0;
+      messagesBox.replaceChildren();
+      setText(addBubble("assistant"), "Salom! 😊 Men EduAI ustozman. Qaysi mavzuni o‘rganamiz?", "assistant");
+      $("#heroTitle").textContent = "Salom, bilim izlovchi! 👋";
+    }
+    setTimeout(loadRemoteData, 0); // onAuthStateChange ichida to'g'ridan-to'g'ri so'rov yubormaslik uchun
   }
   if (supabaseReady) {
     supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);

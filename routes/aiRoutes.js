@@ -39,16 +39,16 @@ router.post("/chat", async (req, res) => {
       }
     }
 
-    const apiKey = process.env.OLLAMA_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return res.status(503).json({
-        error: "AI API hali sozlanmagan. .env fayliga OLLAMA_API_KEY kiriting.",
+        error: "AI API hali sozlanmagan. .env fayliga OPENROUTER_API_KEY kiriting.",
         code: "AI_NOT_CONFIGURED"
       });
     }
 
-    const host = (process.env.OLLAMA_HOST || "https://ollama.com").replace(/\/+$/, "");
-    const model = process.env.OLLAMA_MODEL || "gpt-oss:120b";
+    const baseUrl = (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
+    const model = process.env.OPENROUTER_MODEL || "openai/gpt-oss-20b:free";
 
     const safeHistory = history
       .filter((item) =>
@@ -65,11 +65,14 @@ router.post("/chat", async (req, res) => {
 
     let response, data;
     try {
-      response = await fetch(`${host}/api/chat`, {
+      response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          // Ixtiyoriy: OpenRouter statistikasida ilovangiz nomi ko'rinadi
+          "HTTP-Referer": process.env.APP_ORIGIN || "http://localhost:3000",
+          "X-Title": "EduAI"
         },
         body: JSON.stringify({
           model,
@@ -79,8 +82,9 @@ router.post("/chat", async (req, res) => {
             ...safeHistory,
             { role: "user", content: message }
           ],
-          // gpt-oss kabi modellar "o'ylash" uchun ham token sarflaydi, shuning uchun limit katta
-          options: { temperature: 0.5, num_predict: 2000 }
+          temperature: 0.5,
+          // Ba'zi modellar "o'ylash" uchun ham token sarflaydi, shuning uchun limit katta
+          max_tokens: 2000
         }),
         signal: controller.signal
       });
@@ -96,20 +100,23 @@ router.post("/chat", async (req, res) => {
 
     if (!response.ok) {
       const detail = typeof data?.error === "string" ? data.error : data?.error?.message || "Unknown error";
-      console.error("Ollama error:", response.status, detail);
+      console.error("OpenRouter error:", response.status, detail);
       if (response.status === 429) {
-        return res.status(429).json({ error: "AI xizmati hozir band yoki limit tugagan. Birozdan so‘ng urinib ko‘ring." });
+        return res.status(429).json({ error: "AI xizmati hozir band yoki bepul limit tugagan. Birozdan so‘ng urinib ko‘ring." });
       }
       if (response.status === 401 || response.status === 403) {
-        return res.status(502).json({ error: "Ollama API kaliti noto‘g‘ri yoki ruxsat yo‘q. .env dagi OLLAMA_API_KEY ni tekshiring." });
+        return res.status(502).json({ error: "OpenRouter API kaliti noto‘g‘ri yoki ruxsat yo‘q. .env dagi OPENROUTER_API_KEY ni tekshiring." });
+      }
+      if (response.status === 402) {
+        return res.status(502).json({ error: "OpenRouter hisobida kredit yetarli emas. Bepul (:free) model tanlang yoki hisobni to‘ldiring." });
       }
       if (response.status === 404) {
-        return res.status(502).json({ error: `“${model}” modeli topilmadi. .env dagi OLLAMA_MODEL ni tekshiring.` });
+        return res.status(502).json({ error: `“${model}” modeli topilmadi yoki hozir mavjud emas. .env dagi OPENROUTER_MODEL ni tekshiring.` });
       }
       return res.status(502).json({ error: "AI xizmatidan javob olishda muammo yuz berdi." });
     }
 
-    const answer = data?.message?.content;
+    const answer = data?.choices?.[0]?.message?.content;
     if (typeof answer !== "string" || !answer.trim()) {
       return res.status(502).json({ error: "AI javobni tugata olmadi. Qayta urinib ko‘ring." });
     }

@@ -13,10 +13,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const isProd = process.env.NODE_ENV === "production";
+const defaultModel = "openai/gpt-oss-20b:free";
 
 // Render / Railway / Nginx orqasida rate limit to'g'ri IP ko'rishi uchun.
 // Productionda default 1, lokalda 0. Kerak bo'lsa TRUST_PROXY=0 yoki 1 deb o'zgartiring.
-const trustProxy = Number(process.env.TRUST_PROXY ?? (isProd ? 1 : 0));
+const trustProxy = Number(process.env.TRUST_PROXY || (isProd ? 1 : 0));
 if (trustProxy) app.set("trust proxy", trustProxy);
 
 app.use(helmet({
@@ -58,8 +59,9 @@ app.get("/api/health", (_req, res) => {
     ok: true,
     app: "EduAI",
     supabaseConfigured,
-    aiConfigured: Boolean(process.env.OLLAMA_API_KEY),
-    model: process.env.OLLAMA_MODEL || "gpt-oss:120b",
+    aiConfigured: Boolean(process.env.OPENROUTER_API_KEY),
+    provider: "openrouter",
+    model: process.env.OPENROUTER_MODEL || defaultModel,
     requireLogin: process.env.REQUIRE_LOGIN === "true"
   });
 });
@@ -86,6 +88,6 @@ app.use((err, _req, res, _next) => {
 app.listen(port, "0.0.0.0", () => {
   console.log(`EduAI ishlayapti: http://localhost:${port}`);
   console.log(`Telefondan ochish uchun: http://<kompyuter-IP-manzili>:${port} (bir xil Wi-Fi)`);
-  console.log(`AI (Ollama): ${process.env.OLLAMA_API_KEY ? "sozlangan" : "sozlanmagan"} · model: ${process.env.OLLAMA_MODEL || "gpt-oss:120b"}`);
+  console.log(`AI (OpenRouter): ${process.env.OPENROUTER_API_KEY ? "sozlangan" : "sozlanmagan"} · model: ${process.env.OPENROUTER_MODEL || defaultModel}`);
   console.log(`Supabase: ${supabaseConfigured ? "sozlangan" : "sozlanmagan"}`);
 });

@@ -50,9 +50,16 @@ Kompyuter va telefon bir xil Wi-Fi’da bo‘lsin. Server ishga tushganda yozilg
 
 ## Supabase
 
-1. `supabase/schema.sql` ni Supabase SQL Editor’da bajaring (test natijalari uchun jadval).
+1. `supabase/schema.sql` ni Supabase → SQL Editor’ga to‘liq joylab, **Run** bosing (bir necha marta ishga tushirsa ham bo‘ladi). U yaratadi:
+   - `profiles` — ro‘yxatdan o‘tganda avtomatik yaratiladi
+   - `learning_progress` — test natijalari
+   - `chat_messages` — AI ustoz suhbat tarixi
+   - `ai_usage` + `consume_ai_quota()` — kunlik AI limiti (standart 50, SQL ichidagi `v_limit` da o‘zgartiriladi)
+   - `get_my_stats()`, `get_my_activity()` — statistika va seriya
+   - barcha jadvallarda RLS: foydalanuvchi faqat o‘z ma’lumotini ko‘radi
 2. `.env` ga `SUPABASE_URL` va `SUPABASE_ANON_KEY` ni kiriting.
 3. `public/config.js` ga shu URL va public (publishable) kalitni kiriting. `service_role` kalitni hech qachon qo‘ymang.
+4. Authentication → URL Configuration: Site URL va Redirect URL’larga saytingiz manzilini qo‘shing. Production uchun email tasdiqlashni yoqing.
 
 ## API yo‘llari
 
